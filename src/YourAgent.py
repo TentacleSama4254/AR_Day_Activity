@@ -60,7 +60,13 @@ class YourAgent(DriveInterface):
     def dfs_solve_path_to_goal(self, sensor_data: dict, goal: list[int]):
         # Depth First Search solver to find a path between SensorData.PLAYER_LOCATION and the goal argument
         # Stores solved path as a list of DriveState(s) in the self.path variable
+        list_1: list[DriveState] = []
+        list_2 :list[DriveState]= []
         start_state = sensor_data[SensorData.PLAYER_LOCATION]
+        end_state = sensor_data[SensorData.GOAL_LOCATION]
+        print('start',start_state)
+        print('end',end_state)
+
 
         new_states = [DriveState(x=start_state[0], y=start_state[1])]
         visited_states = set([])
@@ -81,8 +87,26 @@ class YourAgent(DriveInterface):
 
         print('WARN Could not find solution from DFS solver')
 
+    def calculate_state_score(self, state: DriveState, player, goal):
+        # Function to calculate a score for a state, used in A* search
+
     # This is the main function the simulator will call each turn 
     def get_next_move(self, sensor_data: dict) -> DriveMove:
+        if len(self.path) == 0:
+            if self.need_to_find_target_pod:
+                # Advanced mode - Need to find the target pod and bring it to the goal
+                raise Exception('Advanced mode solver not implemented yet for DfsSolverAgent')
+            else:
+                self.dfs_solve_path_to_goal(sensor_data, sensor_data[SensorData.GOAL_LOCATION])
+
+        next_move, next_state = self.get_move_for_next_state_in_path()
+        if self.will_next_state_collide(next_state, sensor_data):
+            self.path_move_index -= 1
+            # print('Next move would have crashed player, waiting 1 move.')
+            return DriveMove.NONE
+        else:
+            return next_move   
+     
         """
         Main function for YourAgent. The simulator will call this function each loop of the simulation to see what your agent's
         next move would be. You will have access to data about the field, your robot's location, other robots' locations and more
