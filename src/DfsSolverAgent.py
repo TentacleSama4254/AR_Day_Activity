@@ -30,7 +30,7 @@ class DfsSolverAgent(DriveInterface):
             # print('Next move would have crashed player, waiting 1 move.')
             return DriveMove.NONE
         else:
-            return next_move
+            return next_move   
 
     def will_next_state_collide(self, state: DriveState, sensor_data: dict) -> bool:
         # Not implemented yet
