@@ -13,6 +13,7 @@ class DfsSolverAgent(DriveInterface):
         self.field_limits = []
         self.path_move_index = 0
         self.need_to_find_target_pod = is_advanced_mode
+        # self.is_carrying_a_pod = self.is_player_drive_carrying_a_pod(self, sensor_data)
 
     def get_next_move(self, sensor_data: dict) -> DriveMove:
         # Main function called by game orchestrator
@@ -33,7 +34,12 @@ class DfsSolverAgent(DriveInterface):
             return next_move   
 
     def will_next_state_collide(self, state: DriveState, sensor_data: dict) -> bool:
+        if state.to_tuple() in sensor_data[SensorData.FIELD_BOUNDARIES]: return True
+        if self.is_player_drive_carrying_a_pod(sensor_data) and state.to_tuple() in sensor_data[SensorData.POD_LOCATIONS]: return True
+        if state.to_tuple() in sensor_data[SensorData.DRIVE_LOCATIONS]: return True
+            # return True
         # Not implemented yet
+
         return False
 
     def get_move_for_next_state_in_path(self) -> DriveMove:
@@ -69,6 +75,11 @@ class DfsSolverAgent(DriveInterface):
         # Calculates the score of a state based on a* alg
             d1 = abs(current_pos[0] - end[0]) + abs(current_pos[1] - end[1])
             d2 = abs(current_pos[0] - start[0]) + abs(current_pos[1] - start[1])
+
+            if (current_pos in sensor_data[SensorData.FIELD_BOUNDARIES]): return (1000000,1000000,1000000)
+            if (self.is_player_drive_carrying_a_pod() and  current_pos in sensor_data[SensorData.POD_LOCATIONS]):
+                return (1000000, 1000000, 1000000)
+            
             return (d1 + d2,d1,d2)
         
         start_state = sensor_data[SensorData.PLAYER_LOCATION]
