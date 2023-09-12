@@ -54,10 +54,21 @@ class DfsSolverAgent(DriveInterface):
         # Depth First Search solver to find a path between SensorData.PLAYER_LOCATION and the goal argument
         # Stores solved path as a list of DriveState(s) in the self.path variable
 
-        def calc_state_score(self, current_pos:DriveState,start:DriveState,end:DriveState):
+        def get_neighbours(self, current_pos:DriveState):
+            # Returns a list of all reachable states from the argument state by iterating over all possible drive moves
+            n :tuple[int]= []
+            n.append(tuple(x=current_pos.x-1, y=current_pos.y))
+            n.append(tuple(x=current_pos.x+1, y=current_pos.y))
+            n.append(tuple(x=current_pos.x, y=current_pos.y+1))
+            n.append(tuple(x=current_pos.x, y=current_pos.y-1))
+
+            return n
+        
+
+        def calc_state_score(self, current_pos:tuple[int],start:tuple[int],end:tuple[int]):
         # Calculates the score of a state based on a* alg
-            d1 = abs(current_pos.x - end.x)
-            d2 = abs(current_pos.y - end.y)
+            d1 = abs(current_pos[0] - end[0]) + abs(current_pos[1] - end[1])
+            d2 = abs(current_pos[0] - start[0]) + abs(current_pos[1] - start[1])
             return (d1 + d2,d1,d2)
         
         start_state = sensor_data[SensorData.PLAYER_LOCATION]
@@ -70,20 +81,23 @@ class DfsSolverAgent(DriveInterface):
         start_state = sensor_data[SensorData.PLAYER_LOCATION]
         end_state = sensor_data[SensorData.GOAL_LOCATION]
 
+        list_2.append(start_state)
+
         print('start',start_state)
+        print('end',sensor_data[SensorData.DRIVE_LOCATIONS])
 
         while len(paths) > 0:
-            min_index = 0
-            set1 =100000
-            for path in paths:
-                d =calc_state_score(self,path[-1],start_state,end_state)
-                if d[0]<set:
-                    set1 = d[0]
-                    min_index = paths.index(path)
+            # min_index = 0
+            # set1 =100000
+            # for path in paths:
+            #     d =calc_state_score(self,path[-1],start_state,end_state)jjj
+            #     if d[0]<set:
+            #         set1 = d[0]
+            #         min_index = paths.index(path)
 
-            current_path = paths[min_index]
-            paths.splice(min_index,1)
-            # current_path = paths.pop(len(paths)-1)
+            # current_path = paths[min_index]
+            # paths.splice(min_index,1)
+            current_path = paths.pop(len(paths)-1)
             curr_state = current_path[-1]
             if curr_state.x == goal[0] and curr_state.y == goal[1]:
                 self.path = current_path
